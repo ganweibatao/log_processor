@@ -124,8 +124,12 @@ def upload_file():
             output_file_path = f'processed_logs/{file.filename}'  # 保留原始文件名
             if not os.path.exists('processed_logs'):
                 os.makedirs('processed_logs')
-            result_file = process_log_file(log_content, output_file_path)
-            manage_log_files('processed_logs')  # 管理日志文件数量
+            try:
+                result_file = process_log_file(log_content, output_file_path)
+                manage_log_files('processed_logs')  # 管理日志文件数量
+            except Exception as e:
+                app.logger.error(f"Error processing log file: {e}")
+                return "Error processing log file"
             return redirect(url_for('upload_file', filename=file.filename))
     
     filename = request.args.get('filename')
