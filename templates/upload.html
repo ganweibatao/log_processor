@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Manager Dashboard</title>
+    <!-- 引入 Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引入 Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <!-- 添加网站图标 -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            background: url("{{ url_for('static', filename='pexels-minan1398-1353938.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Roboto', sans-serif;
+            position: relative;
+            color: #d1d1d1; /* 高级灰 */
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(24, 107, 71, 0.5), rgba(24, 107, 71, 0.5)); /* 高级灰绿色 */
+            mix-blend-mode: overlay;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #145a3a; /* 更深的高级灰绿色 */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 2s ease-in-out;
+            font-family: 'Pacifico', cursive; /* 可爱风格字体 */
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background: #2e2e2e; /* 高级灰 */
+            animation: slideIn 1s ease-in-out;
+        }
+        .result-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #3e3e3e; /* 高级灰 */
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #4e4e4e; /* 高级灰 */
+            font-size: 0.9rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* 添加阴影 */
+        }
+        .btn-custom {
+            background-color: #145a3a; /* 更深的高级灰绿色 */
+            color: white;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); /* 添加阴影 */
+        }
+        .btn-custom:hover {
+            background-color: #0f3e2a; /* 更深的高级灰绿色 */
+            transform: scale(1.05);
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .form-group input[type="file"] {
+            border: 2px dashed #145a3a; /* 更深的高级灰绿色 */
+            padding: 20px;
+            border-radius: 10px;
+            background: #3e3e3e; /* 高级灰 */
+            transition: background 0.3s ease;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); /* 添加阴影 */
+        }
+        .form-group input[type="file"]:hover {
+            background: #4e4e4e; /* 更深的高级灰 */
+        }
+        .highlight {
+            color: #ff0000; /* 默认高亮颜色 */
+            font-weight: bold;
+        }
+        .highlight-green {
+            color: #9eb69e; /* 淡绿色 */
+            font-weight: bold;
+        }
+        .highlight-deep-green {
+            color: #578e76; /* 更深的高级灰绿色 */
+            font-weight: bold;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300px; /* 增加宽度 */
+            background-color: #2e2e2e; /* 高级灰 */
+            color: white;
+            padding: 20px; /* 增加内边距 */
+            font-size: 0.9rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* 添加阴影 */
+            transition: all 0.3s ease; /* 添加过渡效果 */
+        }
+        .sidebar a {
+            color: white;
+            padding: 15px;
+            text-decoration: none;
+            display: block;
+            border-radius: 5px; /* 添加圆角 */
+            transition: background-color 0.3s ease, transform 0.3s ease; /* 添加过渡效果 */
+        }
+        .sidebar a:hover {
+            background-color: #145a3a; /* 更深的高级灰绿色 */
+            transform: scale(1.05); /* 添加缩放效果 */
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); /* 添加阴影 */
+        }
+        .sidebar .logo {
+            font-size: 2.5rem; /* 调整字体大小 */
+            font-weight: bold;
+            color: #145a3a; /* 更深的高级灰绿色 */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 2s ease-in-out;
+            font-family: 'Pacifico', cursive; /* 可爱风格字体 */
+            margin-bottom: 20px; /* 增加下边距 */
+        }
+        .sidebar h3, .card h1 {
+            margin-top: 20px; /* 增加上边距 */
+            font-size: 1.2rem; /* 调整字体大小 */
+            color: #9eb69e; /* 淡绿色 */
+            border-bottom: 1px solid #4e4e4e; /* 添加下边框 */
+            padding-bottom: 10px; /* 增加下边距 */
+        }
+        .content {
+            margin-left: 300px; /* 调整内容区域的左边距 */
+            padding: 20px;
+        }
+        .hide-text {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="sidebar">
+        <div class="text-center mb-4">
+            <span class="logo" style="color: #134a2f; text-shadow: 2px 2px 4px rgba(15, 15, 15, 0.5); font-family: 'Pacifico', cursive;">休眠唤醒</span>
+        </div>
+        <a href="{{ url_for('upload_file') }}" class="d-block mb-2">Upload Log File</a>
+        <h3>History</h3>
+        {% for file in history_files %}
+            <a href="{{ url_for('upload_file', filename=file) }}">{{ file }}</a>
+        {% endfor %}
+    </div>
+    <div class="content">
+        <div id="upload" class="container mt-5">
+            <div class="card p-4">
+                <h1 class="text-center"><span class="hide-text">Upload Log File</span></h1>
+                <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data" class="mt-4">
+                    <div class="form-group">
+                        <input type="file" name="logfile" class="form-control-file" id="fileInput">
+                    </div>
+                    <button type="submit" class="btn btn-custom btn-block">Upload</button>
+                    <div id="error-message" class="text-danger mt-2" style="display: none;">No selected file</div>
+                </form>
+
+                {% if current_file %}
+                    <div id="results" class="mt-5 result-container">
+                        <h2>{{ current_file }}</h2>
+                        <button id="copyButton" class="btn btn-custom btn-sm float-right">Copy</button>
+                        <div>
+                            {% for line in result %}
+                                <div>{{ line }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加个性化署名 -->
+    <!-- <footer class="text-center mt-5">
+        <p class="signature">Created by <span class="highlight">small.tao</span></p>
+    </footer> -->
+
+    <!-- 引入 Bootstrap JS 和依 -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadForm = document.getElementById('uploadForm');
+            const errorMessage = document.getElementById('error-message');
+
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files.length > 0) {
+                    fileInput.classList.add('file-selected');
+                    errorMessage.style.display = 'none';
+                } else {
+                    fileInput.classList.remove('file-selected');
+                }
+            });
+
+            uploadForm.addEventListener('submit', function(event) {
+                if (fileInput.files.length === 0) {
+                    event.preventDefault();
+                    errorMessage.style.display = 'block';
+                }
+            });
+
+            // Highlight keywords in the result
+            const resultElement = document.getElementById('results'); // Ensure this ID matches the element
+            if (resultElement) {
+                let resultHTML = resultElement.innerHTML;
+                const keywords = ['维持唤醒锁', '释放唤醒锁', 'SAF进入休眠', 'udpnm 释唤醒VDF', 'udpnm 释唤醒CDF', 'udpnm 释放唤醒ADF', 'udpnm 维持唤醒VDF', 'udpnm 维持唤醒CDF', 'udpnm 维持唤醒ADF', 'udpnm 维持唤醒SAF', 'GPIO唤醒VDF', 'GPIO唤醒VDF成功！'];
+                keywords.forEach(keyword => {
+                    let replacement = '<span class="highlight">$1</span>';
+                    if (keyword === 'SAF进入休眠') {
+                        replacement = '<span class="highlight-green">$1</span>';
+                    } else if (keyword === '维持唤醒锁' || keyword === '释放唤醒锁') {
+                        replacement = '<span class="highlight-deep-green">$1</span>';
+                    }
+                    const regex = new RegExp(`(${keyword})`, 'g');
+                    resultHTML = resultHTML.replace(regex, replacement);
+                });
+                resultElement.innerHTML = resultHTML;
+            } else {
+                console.error('Result element not found');
+            }
+
+            // Copy to clipboard functionality
+            const copyButton = document.getElementById('copyButton');
+            copyButton.addEventListener('click', function() {
+                const range = document.createRange();
+                range.selectNode(resultElement);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                try {
+                    document.execCommand('copy');
+                    showCustomAlert('Content copied to clipboard!');
+                } catch (err) {
+                    console.error('Failed to copy: ', err);
+                }
+                window.getSelection().removeAllRanges();
+            });
+
+            // Custom alert function
+            function showCustomAlert(message) {
+                const alertBox = document.createElement('div');
+                alertBox.textContent = message;
+                alertBox.style.position = 'fixed';
+                alertBox.style.bottom = '20px';
+                alertBox.style.right = '20px';
+                alertBox.style.backgroundColor = '#145a3a'; // Deep green color
+                alertBox.style.color = 'white';
+                alertBox.style.padding = '10px 20px';
+                alertBox.style.borderRadius = '5px';
+                alertBox.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)'; // Floating effect
+                alertBox.style.zIndex = '1000';
+                alertBox.style.transition = 'transform 0.3s ease, opacity 0.3s ease'; // Add transition for floating effect
+                alertBox.style.transform = 'translateY(20px)'; // Initial position
+                alertBox.style.opacity = '0'; // Initial opacity
+                document.body.appendChild(alertBox);
+
+                // Trigger the floating effect
+                setTimeout(() => {
+                    alertBox.style.transform = 'translateY(0)';
+                    alertBox.style.opacity = '1';
+                }, 10);
+
+                setTimeout(() => {
+                    alertBox.style.transform = 'translateY(20px)';
+                    alertBox.style.opacity = '0';
+                    setTimeout(() => {
+                        alertBox.remove();
+                    }, 300); // Wait for the transition to complete before removing
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
